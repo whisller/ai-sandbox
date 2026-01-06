@@ -22,9 +22,9 @@ NC='\''\033[0m'\'' # No Color\n\
 echo -e "${GREEN}Setting up Claude Code environment...${NC}"\n\
 \n\
 # Read git config from mounted host gitconfig\n\
-if [ -f /host-home/.gitconfig ]; then\n\
-    USER_NAME=$(git config -f /host-home/.gitconfig user.name 2>/dev/null || true)\n\
-    USER_EMAIL=$(git config -f /host-home/.gitconfig user.email 2>/dev/null || true)\n\
+if [ -f /host-gitconfig ]; then\n\
+    USER_NAME=$(git config -f /host-gitconfig user.name 2>/dev/null || true)\n\
+    USER_EMAIL=$(git config -f /host-gitconfig user.email 2>/dev/null || true)\n\
     \n\
     if [ -n "$USER_NAME" ]; then\n\
         git config --global user.name "$USER_NAME"\n\
@@ -36,7 +36,7 @@ if [ -f /host-home/.gitconfig ]; then\n\
         echo -e "${GREEN}✓${NC} Git user.email: $USER_EMAIL"\n\
     fi\n\
 else\n\
-    echo -e "${YELLOW}⚠${NC} Host .gitconfig not found, git user not configured"\n\
+    echo -e "${YELLOW}⚠${NC} .gitconfig not found, git user not configured"\n\
 fi\n\
 \n\
 # Setup SSH commit signing if SSH_AUTH_SOCK is available\n\

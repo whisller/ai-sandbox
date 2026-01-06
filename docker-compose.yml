@@ -21,7 +21,7 @@ services:
       - ${WORKSPACE_PATH}:${WORKSPACE_PATH}
 
       # Mount host's .gitconfig to read user.name and user.email
-      - ${HOME}:/host-home:ro
+      - ${HOME}/.gitconfig:/host-gitconfig:ro
 
       # Persist Claude config (including auth token) across container restarts
       - claude-config:/home/agent/.config
