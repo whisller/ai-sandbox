@@ -45,7 +45,7 @@ if [ -S "$SSH_AUTH_SOCK" ]; then\n\
     \n\
     if ssh-add -L >/dev/null 2>&1; then\n\
         if [ -n "$CLAUDE_SANDBOX_SSH_KEY_NAME" ]; then\n\
-            KEY=$(ssh-add -L 2>/dev/null | grep "$CLAUDE_SANDBOX_SSH_KEY_NAME" | head -n1 || true)\n\
+            KEY=$(ssh-add -L 2>/dev/null | grep -F "$CLAUDE_SANDBOX_SSH_KEY_NAME" | head -n1 || true)\n\
         else\n\
             KEY=$(ssh-add -L 2>/dev/null | head -n1 || true)\n\
         fi\n\
