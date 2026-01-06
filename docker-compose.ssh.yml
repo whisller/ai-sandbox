@@ -1,0 +1,22 @@
+# Docker Compose override for SSH agent forwarding
+# Works with both macOS native SSH agent and 1Password
+# Both integrate with Docker Desktop through /run/host-services/ssh-auth.sock
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.ssh.yml run --rm claude
+#
+# Optional: Set SSH_KEY_NAME to use a specific key
+#   export SSH_KEY_NAME="[Docker Sandbox] GitHub"
+
+services:
+  claude:
+    environment:
+      # Set SSH_AUTH_SOCK to the Docker Desktop socket
+      - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
+
+      # Optional: Specify which SSH key to use for signing (uses first key if not set)
+      - SSH_KEY_NAME=${SSH_KEY_NAME:-}
+
+    volumes:
+      # Mount Docker Desktop's SSH agent socket
+      - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock

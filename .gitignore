@@ -1,0 +1,5 @@
+# Docker volumes
+data/
+
+# Environment variables (may contain sensitive data)
+.env

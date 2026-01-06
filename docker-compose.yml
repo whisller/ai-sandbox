@@ -1,0 +1,34 @@
+# Base docker-compose configuration for Claude Code
+# Zero-configuration setup - automatically reads git config from host
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.ssh.yml run --rm claude
+
+services:
+  claude:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: claude-dev:latest
+    container_name: claude-dev
+    stdin_open: true
+    tty: true
+    working_dir: ${WORKSPACE_PATH}
+
+    # Mount your workspace and git config
+    volumes:
+      # Workspace - mounted at same path as host (docker sandbox behavior)
+      - ${WORKSPACE_PATH}:${WORKSPACE_PATH}
+
+      # Mount host's .gitconfig to read user.name and user.email
+      - ${HOME}:/host-home:ro
+
+      # Persist Claude config (including auth token) across container restarts
+      - claude-config:/home/agent/.config
+
+    # Restart policy
+    restart: unless-stopped
+
+# Named volumes for persistent data
+volumes:
+  claude-config:
