@@ -1,6 +1,10 @@
 # Claude Code Docker Environment
 
-A zero-configuration Docker Compose setup that mimics `docker sandbox` behavior. One persistent container per workspace with automatic git configuration and SSH commit signing.
+A zero-configuration Docker Compose setup that mimics [docker sandbox](https://docs.docker.com/ai/sandboxes/) behavior.
+
+This allows your Claude AI agents to run in a fully isolated environment.
+
+One persistent container per workspace with automatic git configuration and SSH commit signing.
 
 ## Features
 
