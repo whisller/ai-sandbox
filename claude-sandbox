@@ -4,11 +4,11 @@
 # - Reuses existing container if running
 # - State persists across sessions
 
-# Check if WORKSPACE_PATH is set
-if [ -z "$WORKSPACE_PATH" ]; then
-    echo "Error: WORKSPACE_PATH environment variable is not set"
+# Check if CLAUDE_SANDBOX_WORKSPACE_PATH is set
+if [ -z "$CLAUDE_SANDBOX_WORKSPACE_PATH" ]; then
+    echo "Error: CLAUDE_SANDBOX_WORKSPACE_PATH environment variable is not set"
     echo "Set it in your shell config or .env file:"
-    echo "  export WORKSPACE_PATH=/your/workspace/path"
+    echo "  export CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path"
     exit 1
 fi
 

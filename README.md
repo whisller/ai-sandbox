@@ -36,14 +36,14 @@ docker-compose build
 **Option A:** Set in shell config (recommended):
 ```bash
 # Add to ~/.zshrc or ~/.bashrc
-export WORKSPACE_PATH=/your/workspace/path
+export CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path
 alias claude-sandbox='~/Sites/claude-compose-sandbox/claude-sandbox'
 ```
 
 **Option B:** Use `.env` file:
 ```bash
 cp .env.example .env
-# Edit .env and set WORKSPACE_PATH
+# Edit .env and set CLAUDE_SANDBOX_WORKSPACE_PATH
 ```
 
 Reload your shell:
@@ -161,14 +161,14 @@ Set via environment variable:
 
 ```bash
 # Option 1: Set for single session
-WORKSPACE_PATH=/your/workspace/path claude-sandbox
+CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path claude-sandbox
 
 # Option 2: Set in your shell config (~/.zshrc)
-export WORKSPACE_PATH=/your/workspace/path
+export CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path
 
 # Option 3: Create .env file
 cp .env.example .env
-# Edit WORKSPACE_PATH in .env
+# Edit CLAUDE_SANDBOX_WORKSPACE_PATH in .env
 ```
 
 ### SSH Key Selection
@@ -176,7 +176,7 @@ cp .env.example .env
 Set environment variable to use specific SSH key:
 
 ```bash
-export SSH_KEY_NAME="[Docker Sandbox] GitHub"
+export CLAUDE_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
 claude-sandbox
 ```
 
@@ -238,9 +238,9 @@ ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 
 1. Enable SSH agent in 1Password settings
 2. Generate or import SSH keys in 1Password
-3. Optional: Set SSH_KEY_NAME environment variable
+3. Optional: Set CLAUDE_SANDBOX_SSH_KEY_NAME environment variable
    ```bash
-   export SSH_KEY_NAME="[Docker Sandbox] GitHub"
+   export CLAUDE_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
    ```
 
 ## Troubleshooting
@@ -385,7 +385,7 @@ Mount additional directories by editing `docker-compose.yml`:
 
 ```yaml
 volumes:
-  - ${WORKSPACE_PATH}:${WORKSPACE_PATH}
+  - ${CLAUDE_SANDBOX_WORKSPACE_PATH}:${CLAUDE_SANDBOX_WORKSPACE_PATH}
   - /path/to/other/dir:/mnt/other:ro
 ```
 

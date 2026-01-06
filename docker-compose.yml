@@ -13,12 +13,12 @@ services:
     container_name: claude-dev
     stdin_open: true
     tty: true
-    working_dir: ${WORKSPACE_PATH}
+    working_dir: ${CLAUDE_SANDBOX_WORKSPACE_PATH}
 
     # Mount your workspace and git config
     volumes:
       # Workspace - mounted at same path as host (docker sandbox behavior)
-      - ${WORKSPACE_PATH}:${WORKSPACE_PATH}
+      - ${CLAUDE_SANDBOX_WORKSPACE_PATH}:${CLAUDE_SANDBOX_WORKSPACE_PATH}
 
       # Mount host's .gitconfig to read user.name and user.email
       - ${HOME}/.gitconfig:/host-gitconfig:ro

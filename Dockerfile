@@ -44,8 +44,8 @@ if [ -S "$SSH_AUTH_SOCK" ]; then\n\
     sudo chmod 666 "$SSH_AUTH_SOCK" 2>/dev/null || true\n\
     \n\
     if ssh-add -L >/dev/null 2>&1; then\n\
-        if [ -n "$SSH_KEY_NAME" ]; then\n\
-            KEY=$(ssh-add -L 2>/dev/null | grep "$SSH_KEY_NAME" | head -n1 || true)\n\
+        if [ -n "$CLAUDE_SANDBOX_SSH_KEY_NAME" ]; then\n\
+            KEY=$(ssh-add -L 2>/dev/null | grep "$CLAUDE_SANDBOX_SSH_KEY_NAME" | head -n1 || true)\n\
         else\n\
             KEY=$(ssh-add -L 2>/dev/null | head -n1 || true)\n\
         fi\n\
