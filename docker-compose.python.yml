@@ -1,0 +1,13 @@
+# Docker Compose override for Python variant
+# Builds on top of ai-sandbox:claude, adds Python tooling
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.python.yml -f docker-compose.ssh.yml up -d
+
+services:
+  claude:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    image: ai-sandbox:python
+    container_name: ai-sandbox

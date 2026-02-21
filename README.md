@@ -1,4 +1,4 @@
-# Claude Code Docker Environment
+# ai-sandbox
 
 A zero-configuration Docker Compose setup that mimics [docker sandbox](https://docs.docker.com/ai/sandboxes/) behavior.
 
@@ -14,6 +14,7 @@ One persistent container per workspace with automatic git configuration and SSH 
 - **Zero Configuration**: Automatically reads git config from your host system
 - **SSH Commit Signing**: Auto-configured with your SSH agent (macOS or 1Password)
 - **Shared Filesystem**: All terminals share the same workspace
+- **Python Variant**: Optional Python image with uv, poetry, ruff, pytest, mypy
 
 ## Prerequisites
 
@@ -27,8 +28,9 @@ One persistent container per workspace with automatic git configuration and SSH 
 ### 1. Build the image
 
 ```bash
-cd ~/Sites/claude-compose-sandbox
-docker-compose build
+cd ~/Sites/ai-sandbox
+./ai-sandbox --build           # builds and runs ai-sandbox:claude
+./ai-sandbox python --build    # builds and runs ai-sandbox:python
 ```
 
 ### 2. Configure workspace path
@@ -36,14 +38,14 @@ docker-compose build
 **Option A:** Set in shell config (recommended):
 ```bash
 # Add to ~/.zshrc or ~/.bashrc
-export CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path
-alias claude-sandbox='~/Sites/claude-compose-sandbox/claude-sandbox'
+export AI_SANDBOX_WORKSPACE_PATH=/your/workspace/path
+alias ai-sandbox='~/Sites/ai-sandbox/ai-sandbox'
 ```
 
 **Option B:** Use `.env` file:
 ```bash
 cp .env.example .env
-# Edit .env and set CLAUDE_SANDBOX_WORKSPACE_PATH
+# Edit .env and set AI_SANDBOX_WORKSPACE_PATH
 ```
 
 Reload your shell:
@@ -54,7 +56,7 @@ source ~/.zshrc  # or ~/.bashrc
 ### 3. Run Claude
 
 ```bash
-claude-sandbox
+ai-sandbox
 ```
 
 That's it!
@@ -71,20 +73,20 @@ Just like `docker sandbox`, this setup maintains **one container per workspace**
 
 ### Multiple Terminal Tabs
 
-Open multiple terminal tabs and run `claude-sandbox` in each:
+Open multiple terminal tabs and run `ai-sandbox` in each:
 
 ```bash
 # Terminal Tab 1
-claude-sandbox
+ai-sandbox
 > "install express and create a server"
 
 # Terminal Tab 2 (reuses same container)
-claude-sandbox
+ai-sandbox
 > "create tests for the server"
 # Can see express packages installed in Tab 1
 
 # Terminal Tab 3
-claude-sandbox
+ai-sandbox
 > "update the README"
 ```
 
@@ -100,7 +102,7 @@ All tabs:
 
 ```bash
 # From any terminal
-claude-sandbox
+ai-sandbox
 ```
 
 The script automatically:
@@ -112,13 +114,13 @@ The script automatically:
 
 ```bash
 # Terminal 1
-claude-sandbox
+ai-sandbox
 
 # Terminal 2 (new tab)
-claude-sandbox  # Connects to same container
+ai-sandbox  # Connects to same container
 
 # Terminal 3 (new tab)
-claude-sandbox  # Connects to same container
+ai-sandbox  # Connects to same container
 ```
 
 ### Stopping/Resetting
@@ -126,31 +128,31 @@ claude-sandbox  # Connects to same container
 To remove the container and start fresh:
 
 ```bash
-cd ~/Sites/claude-compose-sandbox
+cd ~/Sites/ai-sandbox
 docker-compose down
 ```
 
-Next `claude-sandbox` command will create a new container.
+Next `ai-sandbox` command will create a new container.
 
 ### Viewing Logs
 
 ```bash
-docker logs -f claude-dev
+docker logs -f ai-sandbox
 ```
 
 ### Manual Container Management
 
 ```bash
 # Start container manually
-docker-compose -f ~/Sites/claude-compose-sandbox/docker-compose.yml \
-               -f ~/Sites/claude-compose-sandbox/docker-compose.ssh.yml \
+docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml \
+               -f ~/Sites/ai-sandbox/docker-compose.ssh.yml \
                up -d
 
 # Stop container
-docker-compose -f ~/Sites/claude-compose-sandbox/docker-compose.yml down
+docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml down
 
 # Rebuild after changes
-docker-compose -f ~/Sites/claude-compose-sandbox/docker-compose.yml build
+docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml build
 ```
 
 ## Configuration
@@ -161,14 +163,14 @@ Set via environment variable:
 
 ```bash
 # Option 1: Set for single session
-CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path claude-sandbox
+AI_SANDBOX_WORKSPACE_PATH=/your/workspace/path ai-sandbox
 
 # Option 2: Set in your shell config (~/.zshrc)
-export CLAUDE_SANDBOX_WORKSPACE_PATH=/your/workspace/path
+export AI_SANDBOX_WORKSPACE_PATH=/your/workspace/path
 
 # Option 3: Create .env file
 cp .env.example .env
-# Edit CLAUDE_SANDBOX_WORKSPACE_PATH in .env
+# Edit AI_SANDBOX_WORKSPACE_PATH in .env
 ```
 
 ### SSH Key Selection
@@ -176,8 +178,8 @@ cp .env.example .env
 Set environment variable to use specific SSH key:
 
 ```bash
-export CLAUDE_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
-claude-sandbox
+export AI_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
+ai-sandbox
 ```
 
 Or leave unset to use first available key.
@@ -193,17 +195,17 @@ git config --global --list
 
 ### Persistent Authentication
 
-Claude authentication is stored in a Docker named volume (`claude-config`) that persists across container restarts:
+Claude authentication is stored in a Docker named volume (`ai-sandbox-config`) that persists across container restarts:
 
 ```bash
 # On first run, authenticate via browser
-claude-sandbox  # Opens browser for OAuth authentication
+ai-sandbox  # Opens browser for OAuth authentication
 
 # Subsequent runs use the persisted token
-claude-sandbox  # No authentication needed
+ai-sandbox  # No authentication needed
 
 # To reset authentication (force re-login)
-docker volume rm claude-compose-sandbox_claude-config
+docker volume rm ai-sandbox_ai-sandbox-config
 ```
 
 The volume maps to `/home/agent/.config` inside the container, storing:
@@ -223,6 +225,30 @@ Based on official `docker/sandbox-templates:claude-code` image with:
 - **Network**: curl, wget, socat, netcat
 - **Utilities**: jq, vim, nano, tree, htop, zip, unzip
 
+## Python Variant
+
+A Python-focused image is available that builds on top of `ai-sandbox:claude` and adds:
+
+- **uv** — fast Python package manager
+- **poetry** — dependency management
+- **ruff** — linter/formatter
+- **pytest** + **pytest-cov** — testing
+- **mypy** — type checking
+
+### Build the Python image
+
+```bash
+./ai-sandbox python --build
+```
+
+### Run Claude with Python tooling
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.python.yml -f docker-compose.ssh.yml up -d
+```
+
+The Python variant uses the same container slot (`ai-sandbox`) — you simply swap which compose override you use.
+
 ## SSH Signing Setup
 
 Works automatically with both macOS native SSH agent and 1Password through Docker Desktop's `/run/host-services/ssh-auth.sock`.
@@ -238,9 +264,9 @@ ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 
 1. Enable SSH agent in 1Password settings
 2. Generate or import SSH keys in 1Password
-3. Optional: Set CLAUDE_SANDBOX_SSH_KEY_NAME environment variable
+3. Optional: Set AI_SANDBOX_SSH_KEY_NAME environment variable
    ```bash
-   export CLAUDE_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
+   export AI_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
    ```
 
 ## Troubleshooting
@@ -250,7 +276,7 @@ ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 Check SSH agent inside container:
 
 ```bash
-docker exec claude-dev ssh-add -L
+docker exec ai-sandbox ssh-add -L
 ```
 
 Should list your SSH keys. If not:
@@ -263,7 +289,7 @@ Should list your SSH keys. If not:
 Check inside container:
 
 ```bash
-docker exec claude-dev git config --global --list
+docker exec ai-sandbox git config --global --list
 ```
 
 Should show `user.name` and `user.email`. If not:
@@ -273,17 +299,17 @@ Should show `user.name` and `user.email`. If not:
 
 ### Container Not Reusing
 
-If each `claude` command creates a new container:
+If each `ai-sandbox` command creates a new container:
 
 ```bash
 # Check for existing container
-docker ps -a | grep claude-dev
+docker ps -a | grep ai-sandbox
 
 # Remove old containers
-docker rm -f claude-dev
+docker rm -f ai-sandbox
 
 # Try again
-claude-sandbox
+ai-sandbox
 ```
 
 ### Multiple Claude Instances Conflicting
@@ -340,11 +366,13 @@ If Claude instances interfere with each other, they might be trying to modify th
 ## Files
 
 ```
-claude-compose-sandbox/
-├── Dockerfile                   # Based on official Anthropic image
-├── docker-compose.yml          # Base configuration
-├── docker-compose.ssh.yml      # SSH agent forwarding
-├── claude-sandbox              # Wrapper script (mimics docker sandbox)
+ai-sandbox/
+├── Dockerfile.claude            # Base image (git config + SSH signing)
+├── Dockerfile.python            # Python variant (FROM ai-sandbox:claude)
+├── docker-compose.yml           # Base configuration
+├── docker-compose.ssh.yml       # SSH agent forwarding
+├── docker-compose.python.yml    # Python variant override
+├── ai-sandbox                   # Wrapper script (mimics docker sandbox)
 ├── .gitignore
 └── README.md
 ```
@@ -366,7 +394,7 @@ After modifying the Dockerfile:
 ```bash
 docker-compose down  # Remove old container
 docker-compose build  # Rebuild image
-claude-sandbox  # Start with new image
+ai-sandbox  # Start with new image
 ```
 
 ### Environment Variables
@@ -385,13 +413,13 @@ Mount additional directories by editing `docker-compose.yml`:
 
 ```yaml
 volumes:
-  - ${CLAUDE_SANDBOX_WORKSPACE_PATH}:${CLAUDE_SANDBOX_WORKSPACE_PATH}
+  - ${AI_SANDBOX_WORKSPACE_PATH}:${AI_SANDBOX_WORKSPACE_PATH}
   - /path/to/other/dir:/mnt/other:ro
 ```
 
 ## Tips
 
-1. **One workspace, one container**: The container name is `claude-dev`, so only one workspace can be active. For multiple workspaces, modify `docker-compose.yml` to use different container names.
+1. **One workspace, one container**: The container name is `ai-sandbox`, so only one workspace can be active. For multiple workspaces, modify `docker-compose.yml` to use different container names.
 
 2. **Cleanup old containers**: Periodically remove stopped containers:
    ```bash
@@ -407,5 +435,5 @@ volumes:
    ```bash
    docker-compose down -v  # Remove volumes too
    docker-compose build --no-cache
-   claude-sandbox
+   ai-sandbox
    ```

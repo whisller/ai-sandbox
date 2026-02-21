@@ -5,8 +5,8 @@
 # Usage:
 #   docker-compose -f docker-compose.yml -f docker-compose.ssh.yml run --rm claude
 #
-# Optional: Set CLAUDE_SANDBOX_SSH_KEY_NAME to use a specific key
-#   export CLAUDE_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
+# Optional: Set AI_SANDBOX_SSH_KEY_NAME to use a specific key
+#   export AI_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
 
 services:
   claude:
@@ -15,7 +15,7 @@ services:
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
 
       # Optional: Specify which SSH key to use for signing (uses first key if not set)
-      - CLAUDE_SANDBOX_SSH_KEY_NAME=${CLAUDE_SANDBOX_SSH_KEY_NAME:-}
+      - AI_SANDBOX_SSH_KEY_NAME=${AI_SANDBOX_SSH_KEY_NAME:-}
 
     volumes:
       # Mount Docker Desktop's SSH agent socket
