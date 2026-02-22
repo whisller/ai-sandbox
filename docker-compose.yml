@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.claude
+      args:
+        WITH_SPEC_KIT: ${WITH_SPEC_KIT:-false}
     image: ai-sandbox:claude
     container_name: ai-sandbox
     stdin_open: true

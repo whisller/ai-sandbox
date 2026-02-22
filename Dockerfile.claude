@@ -70,6 +70,18 @@ echo ""\n\
 \n\
 exec "$@"' > /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Optionally bake spec-kit slash commands into the image
+ARG WITH_SPEC_KIT=false
+RUN if [ "$WITH_SPEC_KIT" = "true" ]; then \
+    pip3 install --break-system-packages "specify-cli @ git+https://github.com/github/spec-kit.git" && \
+    mkdir -p /tmp/speckit-init && \
+    mkdir -p /home/agent/.claude/commands && \
+    cd /tmp/speckit-init && specify init --ai claude --here && \
+    cp /tmp/speckit-init/.claude/commands/speckit.*.md /home/agent/.claude/commands/ && \
+    chown -R agent:agent /home/agent/.claude && \
+    rm -rf /tmp/speckit-init; \
+fi
+
 USER agent
 # WORKDIR is set by docker-compose to match host path (docker sandbox behavior)
 

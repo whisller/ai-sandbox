@@ -5,17 +5,20 @@
 # - State persists across sessions
 #
 # Usage:
-#   ./ai-sandbox                    # run with claude image (default)
-#   ./ai-sandbox --build            # build then run claude image
-#   ./ai-sandbox python             # run with python image
-#   ./ai-sandbox python --build     # build then run python image
+#   ./ai-sandbox                              # run with claude image (default)
+#   ./ai-sandbox --build                      # build then run claude image
+#   ./ai-sandbox --with-spec-kit --build      # build with spec-kit commands baked in
+#   ./ai-sandbox python                       # run with python image
+#   ./ai-sandbox python --build               # build then run python image
 
 VARIANT="claude"
 BUILD=false
+WITH_SPEC_KIT=false
 
 for arg in "$@"; do
     case "$arg" in
         --build) BUILD=true ;;
+        --with-spec-kit) WITH_SPEC_KIT=true ;;
         claude|python) VARIANT="$arg" ;;
         *) echo "Error: unknown argument '$arg'"; exit 1 ;;
     esac
@@ -39,6 +42,8 @@ if [ "$VARIANT" = "python" ]; then
 else
     COMPOSE_FILES="-f docker-compose.yml -f docker-compose.ssh.yml"
 fi
+
+export WITH_SPEC_KIT
 
 if [ "$BUILD" = true ]; then
     if [ "$VARIANT" = "python" ]; then
