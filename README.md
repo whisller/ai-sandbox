@@ -134,27 +134,6 @@ docker-compose down
 
 Next `ai-sandbox` command will create a new container.
 
-### Viewing Logs
-
-```bash
-docker logs -f ai-sandbox
-```
-
-### Manual Container Management
-
-```bash
-# Start container manually
-docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml \
-               -f ~/Sites/ai-sandbox/docker-compose.ssh.yml \
-               up -d
-
-# Stop container
-docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml down
-
-# Rebuild after changes
-docker-compose -f ~/Sites/ai-sandbox/docker-compose.yml build
-```
-
 ## Configuration
 
 ### Workspace Path
@@ -181,8 +160,6 @@ Set environment variable to use specific SSH key:
 export AI_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
 ai-sandbox
 ```
-
-Or leave unset to use first available key.
 
 ### Git Configuration
 
@@ -240,14 +217,6 @@ A Python-focused image is available that builds on top of `ai-sandbox:claude` an
 ```bash
 ./ai-sandbox python --build
 ```
-
-### Run Claude with Python tooling
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.python.yml -f docker-compose.ssh.yml up -d
-```
-
-The Python variant uses the same container slot (`ai-sandbox`) — you simply swap which compose override you use.
 
 ## SSH Signing Setup
 
@@ -325,43 +294,6 @@ If Claude instances interfere with each other, they might be trying to modify th
 - **SSH Agent**: Forwarded from host via Docker Desktop
 - **Git Config**: Read from host's `~/.gitconfig` at startup
 - **State**: Persists in container until explicitly removed
-
-## Comparison to docker sandbox
-
-### This Setup (docker-compose)
-
-**Advantages:**
-- Full control and transparency over configuration
-- Explicit volume mounts and environment variables
-- Easy to customize and debug
-- Can be version controlled
-- Works with standard docker-compose tooling
-- Zero-configuration git and SSH setup
-
-**How it's the same:**
-- One container per workspace
-- Persistent state across sessions
-- Multiple terminal support
-- Same isolation guarantees
-
-### docker sandbox
-
-**Advantages:**
-- Simpler command line interface
-- Automatic workspace detection
-- Built-in safety features
-- Official Anthropic support
-
-**Choose this setup if:**
-- You want full control over your environment
-- You want zero-configuration git/SSH setup
-- You want to understand exactly what's running
-- You want to customize the environment
-
-**Choose docker sandbox if:**
-- You prefer official tooling
-- You want the simplest possible interface
-- You don't need custom configuration
 
 ## Files
 
