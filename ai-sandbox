@@ -50,6 +50,11 @@ if [ "$BUILD" = true ]; then
         echo "Building ai-sandbox:claude..."
         docker-compose -f docker-compose.yml build
     fi
+
+    if docker ps -aq -f name="^${CONTAINER_NAME}$" | grep -q .; then
+        echo "Recreating container with new image..."
+        docker rm -f "${CONTAINER_NAME}"
+    fi
 fi
 
 # Check if container exists and is running

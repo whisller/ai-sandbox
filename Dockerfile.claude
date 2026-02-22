@@ -8,7 +8,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Allow agent user to fix socket permissions without password
-RUN echo "agent ALL=(ALL) NOPASSWD: /bin/chmod" >> /etc/sudoers
+RUN echo "agent ALL=(ALL) NOPASSWD: /bin/chmod" >> /etc/sudoers && \
+    echo "agent ALL=(ALL) NOPASSWD: /bin/chown root\:agent /run/host-services/ssh-auth.sock" >> /etc/sudoers
 
 # Create entrypoint script that reads git config from host
 RUN echo '#!/bin/bash\n\
@@ -41,7 +42,8 @@ fi\n\
 \n\
 # Setup SSH commit signing if SSH_AUTH_SOCK is available\n\
 if [ -S "$SSH_AUTH_SOCK" ]; then\n\
-    sudo chmod 666 "$SSH_AUTH_SOCK" 2>/dev/null || true\n\
+    sudo /bin/chown root:agent "$SSH_AUTH_SOCK" 2>/dev/null || true\n\
+    sudo /bin/chmod 660 "$SSH_AUTH_SOCK" 2>/dev/null || true\n\
     \n\
     if ssh-add -L >/dev/null 2>&1; then\n\
         if [ -n "$AI_SANDBOX_SSH_KEY_NAME" ]; then\n\
