@@ -313,7 +313,7 @@ ai-sandbox/
 
 - Container runs as non-root user (`agent`)
 - Only workspace directory is mounted
-- Home directory mounted read-only (for .gitconfig only)
+- `${HOME}/.gitconfig mounted read-only (for .gitconfig only)
 - SSH keys stay on host, only agent socket forwarded
 - sudo limited to `chmod` command only
 
@@ -353,17 +353,7 @@ volumes:
 
 1. **One workspace, one container**: The container name is `ai-sandbox`, so only one workspace can be active. For multiple workspaces, modify `docker-compose.yml` to use different container names.
 
-2. **Cleanup old containers**: Periodically remove stopped containers:
-   ```bash
-   docker container prune
-   ```
-
-3. **Check disk usage**: Monitor Docker disk usage:
-   ```bash
-   docker system df
-   ```
-
-4. **Fresh start**: To completely reset:
+2. **Fresh start**: To completely reset:
    ```bash
    docker-compose down -v  # Remove volumes too
    docker-compose build --no-cache
