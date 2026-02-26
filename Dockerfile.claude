@@ -82,6 +82,12 @@ RUN if [ "$WITH_SPEC_KIT" = "true" ]; then \
     rm -rf /tmp/speckit-init; \
 fi
 
+# cmux notification hooks — baked in unconditionally, silent no-op outside cmux
+COPY hooks/cmux-notify.sh /home/agent/.claude/hooks/cmux-notify.sh
+COPY hooks/claude-settings.json /home/agent/.claude/settings.json
+RUN chown -R agent:agent /home/agent/.claude && \
+    chmod +x /home/agent/.claude/hooks/cmux-notify.sh
+
 USER agent
 # WORKDIR is set by docker-compose to match host path (docker sandbox behavior)
 

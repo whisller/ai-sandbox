@@ -1,0 +1,9 @@
+services:
+  claude:
+    environment:
+      - CMUX_SOCKET_PATH=${CMUX_SOCKET_PATH}
+      - CMUX_TAB_ID=${CMUX_TAB_ID:-}
+      - CMUX_PANEL_ID=${CMUX_PANEL_ID:-}
+      - CMUX_WORKSPACE_ID=${CMUX_WORKSPACE_ID:-}
+    volumes:
+      - ${CMUX_SOCKET_PATH}:${CMUX_SOCKET_PATH}

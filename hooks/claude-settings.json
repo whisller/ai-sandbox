@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "Stop": [
+      {"matcher": "", "hooks": [{"type": "command", "command": "/home/agent/.claude/hooks/cmux-notify.sh"}]}
+    ],
+    "Notification": [
+      {"matcher": "", "hooks": [{"type": "command", "command": "/home/agent/.claude/hooks/cmux-notify.sh"}]}
+    ]
+  }
+}

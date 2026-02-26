@@ -15,6 +15,7 @@ One persistent container per workspace with automatic git configuration and SSH 
 - **SSH Commit Signing**: Auto-configured with your SSH agent (macOS or 1Password)
 - **Shared Filesystem**: All terminals share the same workspace
 - **Python Variant**: Optional Python image with uv, poetry, ruff, pytest, mypy
+- **cmux Notifications**: Desktop notifications when Claude finishes a task (via cmux socket or OSC 777)
 
 ## Prerequisites
 
@@ -202,6 +203,44 @@ Based on official `docker/sandbox-templates:claude-code` image with:
 - **Network**: curl, wget, socat, netcat
 - **Utilities**: jq, vim, nano, tree, htop, zip, unzip
 
+## cmux Notifications
+
+Get a desktop notification when Claude finishes a task or stops, using [cmux](https://github.com/whisller/cmux).
+
+### Setup
+
+Start the container with the cmux overlay:
+
+```bash
+CMUX_SOCKET_PATH=$CMUX_SOCKET_PATH \
+CMUX_TAB_ID=$CMUX_TAB_ID \
+docker compose -f docker-compose.yml -f docker-compose.ssh.yml -f docker-compose.cmux.yml up
+```
+
+Or set the variables in your `.env` file:
+
+```bash
+CMUX_SOCKET_PATH=/path/to/cmux.sock
+CMUX_TAB_ID=your-tab-id
+```
+
+### How It Works
+
+The `hooks/cmux-notify.sh` script is triggered on Claude's `Stop` and `Notification` events (configured in `hooks/claude-settings.json`). It tries two delivery methods in order:
+
+1. **Unix socket** — sends a `notification.create` JSON-RPC call to cmux via `$CMUX_SOCKET_PATH`
+2. **OSC 777** — falls back to terminal escape sequence (`\e]777;notify;title;body\a`) if no socket is available
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.cmux.yml` | Compose overlay: passes env vars and mounts the cmux socket |
+| `hooks/cmux-notify.sh` | Notification hook script |
+| `hooks/claude-settings.json` | Wires the hook to Claude's `Stop`/`Notification` events |
+
+Copy `hooks/claude-settings.json` into the container's `/home/agent/.claude/settings.json` (the Dockerfile does this automatically) and `cmux-notify.sh` to `/home/agent/.claude/hooks/cmux-notify.sh`.
+
 ## Python Variant
 
 A Python-focused image is available that builds on top of `ai-sandbox:claude` and adds:
@@ -304,6 +343,10 @@ ai-sandbox/
 ├── docker-compose.yml           # Base configuration
 ├── docker-compose.ssh.yml       # SSH agent forwarding
 ├── docker-compose.python.yml    # Python variant override
+├── docker-compose.cmux.yml      # cmux notification overlay
+├── hooks/
+│   ├── cmux-notify.sh           # Notification hook (Stop + Notification events)
+│   └── claude-settings.json     # Claude hook wiring
 ├── ai-sandbox                   # Wrapper script (mimics docker sandbox)
 ├── .gitignore
 └── README.md
