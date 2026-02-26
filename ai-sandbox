@@ -43,9 +43,12 @@ else
     COMPOSE_FILES="-f docker-compose.yml -f docker-compose.ssh.yml"
 fi
 
-# Auto-detect cmux: include overlay only when socket is set AND exists on host.
+# Auto-detect cmux: include overlay when socket exists on host.
+# Falls back to /tmp/cmux.sock (cmux default) if CMUX_SOCKET_PATH is not set.
 # Guards against Docker Compose erroring on a missing bind-mount source.
-if [ -n "${CMUX_SOCKET_PATH:-}" ] && [ -S "${CMUX_SOCKET_PATH}" ]; then
+CMUX_SOCKET_PATH="${CMUX_SOCKET_PATH:-/tmp/cmux.sock}"
+if [ -S "${CMUX_SOCKET_PATH}" ]; then
+    export CMUX_SOCKET_PATH
     COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.cmux.yml"
     echo "cmux detected — notifications enabled (socket: $CMUX_SOCKET_PATH)"
 fi
