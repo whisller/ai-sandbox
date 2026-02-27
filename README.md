@@ -162,6 +162,24 @@ export AI_SANDBOX_SSH_KEY_NAME="[Docker Sandbox] GitHub"
 ai-sandbox
 ```
 
+### Container Name
+
+Override the default container name (`ai-sandbox`) to run multiple independent sandboxes:
+
+```bash
+export AI_SANDBOX_CONTAINER_NAME="ai-sandbox-project-x"
+ai-sandbox
+```
+
+### Extra Compose Files
+
+Inject a Compose overlay file that is appended after all built-in overlays. Useful for wrapping `ai-sandbox` without modifying it:
+
+```bash
+export AI_SANDBOX_EXTRA_COMPOSE_FILES="/path/to/docker-compose.custom.yml"
+ai-sandbox --build
+```
+
 ### Git Configuration
 
 Git config is automatically read from your `~/.gitconfig`. To verify:
@@ -360,6 +378,60 @@ ai-sandbox/
 - SSH keys stay on host, only agent socket forwarded
 - sudo limited to `chmod` command only
 
+## Extending ai-sandbox
+
+Two environment variables let you wrap `ai-sandbox` without copying or modifying it.
+
+### `AI_SANDBOX_CONTAINER_NAME`
+
+Overrides the Docker container name (default: `ai-sandbox`). Use this when you need a distinct container so two sandboxes can coexist on the same host:
+
+```bash
+AI_SANDBOX_CONTAINER_NAME="ai-sandbox-custom" ai-sandbox
+```
+
+### `AI_SANDBOX_EXTRA_COMPOSE_FILES`
+
+Injects an additional Compose overlay file after all built-in overlays are assembled. The file is appended last, so it can override anything — image, container name, volumes, environment variables:
+
+```bash
+AI_SANDBOX_EXTRA_COMPOSE_FILES="/path/to/docker-compose.custom.yml" ai-sandbox --build
+```
+
+### Creating a thin wrapper script
+
+Combining both variables you can build a fully delegating wrapper in a few lines:
+
+```bash
+#!/usr/bin/env bash
+# my-sandbox — delegates to ai-sandbox with a custom image and container name
+MY_SANDBOX_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export MY_SANDBOX_DIR
+
+export AI_SANDBOX_CONTAINER_NAME="ai-sandbox-custom"
+export AI_SANDBOX_EXTRA_COMPOSE_FILES="${MY_SANDBOX_DIR}/docker-compose.custom.yml"
+
+exec "${AI_SANDBOX_DIR:-${HOME}/Sites/ai-sandbox}/ai-sandbox" "$@"
+```
+
+The Compose overlay (`docker-compose.custom.yml`) only needs to declare what differs from the base image:
+
+```yaml
+services:
+  claude:
+    image: ai-sandbox:custom
+    build:
+      context: .
+      dockerfile: Dockerfile.custom
+    container_name: ai-sandbox-custom
+```
+
+When `--build` is passed, `ai-sandbox` builds `ai-sandbox:claude` first, then runs a second build pass with your overlay on top.
+
+All arguments (`--build`, `--with-spec-kit`, etc.) are forwarded unchanged, so the wrapper is transparent to the caller.
+
+---
+
 ## Advanced Usage
 
 ### Custom Dockerfile Changes
@@ -394,7 +466,7 @@ volumes:
 
 ## Tips
 
-1. **One workspace, one container**: The container name is `ai-sandbox`, so only one workspace can be active. For multiple workspaces, modify `docker-compose.yml` to use different container names.
+1. **One workspace, one container**: The default container name is `ai-sandbox`, so only one workspace can be active at a time. Set `AI_SANDBOX_CONTAINER_NAME` to run multiple independent sandboxes simultaneously.
 
 2. **Fresh start**: To completely reset:
    ```bash

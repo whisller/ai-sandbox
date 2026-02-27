@@ -35,7 +35,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-CONTAINER_NAME="ai-sandbox"
+CONTAINER_NAME="${AI_SANDBOX_CONTAINER_NAME:-ai-sandbox}"
 
 if [ "$VARIANT" = "python" ]; then
     COMPOSE_FILES="-f docker-compose.yml -f docker-compose.python.yml -f docker-compose.ssh.yml"
@@ -53,6 +53,10 @@ if [ -S "${CMUX_SOCKET_PATH}" ]; then
     echo "cmux detected — notifications enabled (socket: $CMUX_SOCKET_PATH)"
 fi
 
+if [ -n "${AI_SANDBOX_EXTRA_COMPOSE_FILES:-}" ]; then
+    COMPOSE_FILES="$COMPOSE_FILES -f ${AI_SANDBOX_EXTRA_COMPOSE_FILES}"
+fi
+
 export WITH_SPEC_KIT
 
 if [ "$BUILD" = true ]; then
@@ -64,6 +68,10 @@ if [ "$BUILD" = true ]; then
     else
         echo "Building ai-sandbox:claude..."
         docker-compose -f docker-compose.yml build
+        if [ -n "${AI_SANDBOX_EXTRA_COMPOSE_FILES:-}" ]; then
+            echo "Building extended image..."
+            docker-compose $COMPOSE_FILES build
+        fi
     fi
 
     if docker ps -aq -f name="^${CONTAINER_NAME}$" | grep -q .; then
