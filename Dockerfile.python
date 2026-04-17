@@ -8,12 +8,15 @@ RUN pip3 install --no-cache-dir --break-system-packages \
     ruff \
     pytest \
     pytest-cov \
-    mypy
+    mypy \
+    requests \
+    httpx
 
 RUN uv --version && \
     poetry --version && \
     ruff --version && \
     pytest --version && \
-    mypy --version
+    mypy --version && \
+    python3 -c "import requests, httpx"
 
 USER agent
