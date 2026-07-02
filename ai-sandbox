@@ -62,15 +62,15 @@ export WITH_SPEC_KIT
 if [ "$BUILD" = true ]; then
     if [ "$VARIANT" = "python" ]; then
         echo "Building ai-sandbox:claude..."
-        docker-compose -f docker-compose.yml build
+        docker-compose -f docker-compose.yml build || { echo "Error: failed to build ai-sandbox:claude"; exit 1; }
         echo "Building ai-sandbox:python..."
-        docker-compose -f docker-compose.yml -f docker-compose.python.yml build
+        docker-compose -f docker-compose.yml -f docker-compose.python.yml build || { echo "Error: failed to build ai-sandbox:python"; exit 1; }
     else
         echo "Building ai-sandbox:claude..."
-        docker-compose -f docker-compose.yml build
+        docker-compose -f docker-compose.yml build || { echo "Error: failed to build ai-sandbox:claude"; exit 1; }
         if [ -n "${AI_SANDBOX_EXTRA_COMPOSE_FILES:-}" ]; then
             echo "Building extended image..."
-            docker-compose $COMPOSE_FILES build
+            docker-compose $COMPOSE_FILES build || { echo "Error: failed to build extended image"; exit 1; }
         fi
     fi
 
